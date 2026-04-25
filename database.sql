@@ -1,0 +1,42 @@
+CREATE DATABASE IF NOT EXISTS scout_radio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE scout_radio;
+
+CREATE TABLE IF NOT EXISTS participants (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  district VARCHAR(100) NOT NULL,
+  group_name VARCHAR(150) NOT NULL,
+  unite VARCHAR(100) NOT NULL,
+  patrouille VARCHAR(150) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS audio_files (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  original_name VARCHAR(255) NOT NULL,
+  stored_path VARCHAR(500) NOT NULL,
+  max_member_replays INT NOT NULL DEFAULT 2,
+  first_play_done BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS member_audio_plays (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  participant_id INT NOT NULL,
+  audio_id INT NOT NULL,
+  play_count INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_member_audio (participant_id, audio_id),
+  FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,
+  FOREIGN KEY (audio_id) REFERENCES audio_files(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  participant_id INT NULL,
+  display_name VARCHAR(150) NOT NULL,
+  message TEXT NOT NULL,
+  is_system BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE SET NULL
+);

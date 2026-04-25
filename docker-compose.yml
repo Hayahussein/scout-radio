@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: scout_radio
+      MYSQL_USER: scout_user
+      MYSQL_PASSWORD: scout_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: scout_user
+      DB_PASSWORD: scout_password
+      DB_NAME: scout_radio
+      JWT_SECRET: change_this_to_a_long_random_secret_in_production
+      TOKEN_EXPIRES_IN: 2h
+      MEMBER_USERNAME: scout
+      MEMBER_PASSWORD: scout123
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: scout2024
+    depends_on:
+      - db
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  db_data:
